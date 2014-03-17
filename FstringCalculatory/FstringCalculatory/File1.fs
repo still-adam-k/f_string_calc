@@ -11,8 +11,9 @@ let Add input =
     match input with
     | "" -> 0
     | _ when input.Contains(",") -> 
-        let numbers = input.Split(',')
-        (Int32.Parse numbers.[0] ) + (Int32.Parse numbers.[1] )
+        [for n in input.Split(',') -> Int32.Parse n ] 
+        |>  List.toArray 
+        |> Array.sum 
     | _ -> Int32.Parse(input)
 
 [<Test>]
@@ -34,3 +35,7 @@ let Add__two_parameters__returns_sum () =
 [<Test>]
 let Add__two_parameters__returns_sum_01 () = 
         Add("2,2") |> should equal 4
+
+[<Test>]
+let Add_multiple_parameters__returns_sum() = 
+        Add("1,2,3") |> should equal 6
