@@ -10,11 +10,13 @@ open Swensen.Unquote
 let Add input = 
     match input with
     | "" -> 0
-    | _ when input.Contains(",") -> 
-        [for n in input.Split(',') -> Int32.Parse n ] 
-        |>  List.toArray 
+    | _ when input.Contains("//") ->
+        let delim = input.Substring(0, input.IndexOf("//")) 
+        [|for n in input.Substring(input.IndexOf("//") + 2).Split([|delim|], StringSplitOptions.RemoveEmptyEntries) -> Int32.Parse n |] 
         |> Array.sum 
-    | _ -> Int32.Parse(input)
+    | _  -> 
+        [|for n in input.Split(',', '\n') -> Int32.Parse n |] 
+        |> Array.sum 
 
 [<Test>]
 let Add__no_parameters__returns_zero () = 
@@ -39,3 +41,15 @@ let Add__two_parameters__returns_sum_01 () =
 [<Test>]
 let Add_multiple_parameters__returns_sum() = 
         Add("1,2,3") |> should equal 6
+
+[<Test>]
+let New_line_can_be_used_as_delimeter_instead_of_comma() =
+    Add("1\n2,3") |> should equal 6
+
+[<Test>]
+let New_line_can_be_used_as_exclusive_delimeter() =
+    Add("1\n2\n3") |> should equal 6
+
+[<Test>]
+let You_can_specify_delimiter_at_the_beginning_of_the_input_string() =
+    Add(";//1;2") |> should equal 3
